@@ -9,6 +9,13 @@ WriteMakefile(
     'linkext' => { LINKTYPE => ''},
     'dist'     => { COMPRESS => 'gzip -f9', SUFFIX => '.gz' },
     'VERSION_FROM' => 'Pod/HTML_Elements.pm',
+     PREREQ_PM => {
+                   HTML::FormatPS => 0,
+                   HTML::Element  => 0,
+                   HTML::Entities => 0,
+                   HTML::AsSubs   => 0,
+                   Pod::Parser    => 0,
+                  },
 );
 
 package MY;

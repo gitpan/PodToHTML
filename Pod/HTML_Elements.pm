@@ -1,19 +1,19 @@
 package Pod::HTML_Elements;
 use strict;
-use Pod::Parser 1.061;       
+use Pod::Parser 1.061;
 use Pod::Links qw(link_parse);
 use HTML::Element;
 use HTML::Entities;
 use HTML::AsSubs qw(h1 a li title);
 use vars qw(@ISA $VERSION);
-$VERSION = '0.04';
-use base qw(Pod::Parser);  
-use Data::Dumper;     
+$VERSION = '0.05';
+use base qw(Pod::Parser);
+use Data::Dumper;
 
-my $nbsp;              
+my $nbsp;
 
 sub begin_pod
-{                 
+{
  my $obj = shift;
  delete $obj->{'title'};
  my $html = HTML::Element->new('html');
@@ -24,33 +24,33 @@ sub begin_pod
  $obj->{'html'} = $html;
  $obj->{'body'} = $body;
  $obj->{'current'} = $body;
- $obj->{'head'} = $head;              
+ $obj->{'head'} = $head;
  if (defined $obj->{'Index'} and not defined $obj->{'index'})
   {
    $obj->{'index'} = HTML::Element->new('ul');
   }
-}       
+}
 
-sub current 
-{ 
+sub current
+{
  my $obj = shift;
  $obj->{'current'} = shift if (@_);
- return $obj->{'current'}; 
-}          
+ return $obj->{'current'};
+}
 
 sub body    { return shift->{'body'} }
 sub head    { return shift->{'head'} }
 sub html    { return shift->{'html'} }
- 
+
 sub make_elem
 {
  my $tag = shift;
  my $attributes;
- if (@_ and defined $_[0] and ref($_[0]) eq "HASH") 
+ if (@_ and defined $_[0] and ref($_[0]) eq "HASH")
   {
    $attributes = shift;
-  }            
- else 
+  }
+ else
   {
    $attributes = {};
   }
@@ -76,19 +76,19 @@ sub do_name
  $parser->head->push_content(title($t));
  my $i = $parser->{'index'};
  if (defined $i)
-  {        
-   my $links = $parser->{'Links'};              
+  {
+   my $links = $parser->{'Links'};
    my $l = $links->relative_url($parser->{'Index'},$parser->output_file) if (defined $links);
    $i->push_content("\n",li(a({href => $l},$t)));
   }
 }
 
-sub verbatim 
+sub verbatim
 {
- my ($parser, $paragraph, $line_num) = @_;    
+ my ($parser, $paragraph, $line_num) = @_;
  $parser->do_name($paragraph) if ($parser->{'in_name'});
  $parser->add_elem(pre => $paragraph);
-}          
+}
 
 sub raw_text
 {
@@ -98,9 +98,9 @@ sub raw_text
    $text .= (ref $_) ? raw_text($_->content) : $_;
   }
  return $text;
-}                                 
+}
 
-sub textblock 
+sub textblock
 {
  my ($parser, $paragraph, $line_num) = @_;
  my @expansion = $parser->parse_to_elem($paragraph, $line_num);
@@ -111,18 +111,18 @@ sub textblock
   }
  my $c = $parser->current;
  if ($c->tag eq 'dt')
-  {                           
-   $parser->current($c = $c->parent);           
-   $parser->current($parser->add_elem('dd' => @expansion));   
+  {
+   $parser->current($c = $c->parent);
+   $parser->current($parser->add_elem('dd' => @expansion));
   }
  else
   {
    $parser->add_elem(p => @expansion);
   }
-}         
+}
 
 sub linktext
-{                  
+{
  my $parser = shift;
  my $links = $parser->{'Links'};
  return $links->relative_url($parser->output_file,$links->url(@_)) if (defined $links);
@@ -130,7 +130,7 @@ sub linktext
 }
 
 sub non_break
-{             
+{
  my $tree = shift;
  foreach ($tree->children)
   {
@@ -151,29 +151,29 @@ sub seq_to_element
  my ($parser, $cmd, $tree) = @_;
  my $t = $seq{$cmd};
  if ($t)
-  {     
+  {
    my @args = walk_tree($parser,$tree);
    if ($cmd eq 'L')
     {
      my $txt = raw_text(\@args);
      my ($text,@where) = link_parse($txt);
      @args = ($text) if ($text ne $txt);
-     my $link = @where == 1 ? $where[0] : $parser->linktext(@where); 
+     my $link = @where == 1 ? $where[0] : $parser->linktext(@where);
      unshift(@args, { href => $link } ) if defined $link;
     }
    return make_elem($t,@args);
   }
  if ($cmd eq 'E')
-  {        
+  {
    # Assume only one simple string in the argument ...
    my @args = walk_tree($parser,$tree);
    my $s = raw_text(\@args);
    return chr($s) if $s =~ /^\d+$/;
-   return decode_entities("&$s;"); 
+   return decode_entities("&$s;");
   }
  return '' if ($cmd eq 'Z');
  if ($cmd eq 'S')
-  {                    
+  {
    $nbsp = decode_entities('&nbsp;') unless defined $nbsp;
    non_break($tree);
    return walk_tree($parser,$tree);
@@ -201,7 +201,7 @@ sub walk_tree
  return @list;
 }
 
-sub parse_to_elem 
+sub parse_to_elem
 {
  my ($self,$text,$line_num) = @_;
  my $tree = $self->parse_text($text, $line_num);
@@ -209,12 +209,12 @@ sub parse_to_elem
 }
 
 
-sub command 
-{      
+sub command
+{
  my ($parser, $command, $paragraph, $line_num) = @_;
  my @expansion = $parser->parse_to_elem($paragraph, $line_num);
  if ($command =~ /^head(\d+)?$/)
-  {                   
+  {
    my $rank = $1 || 3;
    $parser->current($parser->body);
    my $t = raw_text(\@expansion);
@@ -244,11 +244,11 @@ sub command
    $parser->current($parser->add_elem('ul'));
   }
  elsif ($command eq 'item')
-  {                              
+  {
    my $expansion = shift(@expansion);
    my $c = $parser->current;
    unless ($c->tag =~ /^(ul|dl|ol|dd|dt)/)
-    {       
+    {
      my $file = $parser->input_file;
      $parser->add_elem("h3" => $expansion, @expansion);
      return;
@@ -257,16 +257,16 @@ sub command
     {
      $parser->add_elem(li => "$1",@expansion);
     }
-   elsif ($expansion =~ /^\d+(?:\.|\s+|\))(.*)$/ || 
+   elsif ($expansion =~ /^\d+(?:\.|\s+|\))(.*)$/ ||
           $expansion =~ /^\[\d+\](?:\.|\s+|\))(.*)$/
          )
-    {                                    
+    {
      my $s = $1;
      $c->tag('ol') unless $c->tag eq 'ol';
      $parser->add_elem(li => $s,@expansion);
     }
    else
-    {                           
+    {
      if ($c->tag eq 'dt')
       {
        my $e = make_elem('strong', $expansion, @expansion);
@@ -274,16 +274,16 @@ sub command
       }
      else
       {
-       if ($c->tag eq 'dd')                          
-        {                                            
-         $parser->current($c = $c->parent)           
-        }                                            
-       $c->tag('dl') unless $c->tag eq 'dl';         
+       if ($c->tag eq 'dd')
+        {
+         $parser->current($c = $c->parent)
+        }
+       $c->tag('dl') unless $c->tag eq 'dl';
        my $e = make_elem('strong', make_elem('p'), $expansion, @expansion);
-       my $t = raw_text([$expansion]);               
+       my $t = raw_text([$expansion]);
        if (length $t)
         {
-         my $name = $parser->linktext($t);                                        
+         my $name = $parser->linktext($t);
          $e = make_elem('a',{ name => substr($name,1) } , $e ) if (defined $name);
         }
        $parser->current($parser->add_elem(dt => $e));
@@ -327,17 +327,17 @@ sub command
    warn "$command not implemented\n";
    $parser->add_elem(p => "=$command ",@expansion);
   }
-}         
+}
 
 sub end_pod
 {
  my $parser = shift;
 
  $parser->add_elem("p");
- $parser->add_elem("hr");                                      
+ $parser->add_elem("hr");
  unless ($parser->{'NoDate'})
   {
-   $parser->add_elem("i", make_elem( font => { size => "-1" } , 
+   $parser->add_elem("i", make_elem( font => { size => "-1" } ,
                                      "Last updated: ",scalar localtime));
   }
  my $html = $parser->html;
@@ -345,12 +345,12 @@ sub end_pod
   {
    my $fh = $parser->output_handle;
    if ($fh)
-    { 
+    {
      if ($parser->{'PostScript'})
       {
        require HTML::FormatPS;
        my $formatter = new HTML::FormatPS
-                    FontFamily => 'Times', 
+                    FontFamily => 'Times',
                     HorizontalMargin => HTML::FormatPS::mm(15),
                     VerticalMargin => HTML::FormatPS::mm(20),
                     PaperSize  => 'A4';
@@ -365,19 +365,19 @@ sub end_pod
       {
        print $fh $html->as_HTML;
       }
-    } 
+    }
    $html->delete;
   }
-}      
+}
 
 sub write_index
 {
- my $parser = shift;      
+ my $parser = shift;
  my $ifile = $parser->{'Index'};
  if (defined $ifile)
-  {my $fh = IO::File->new(">$ifile");
-   if ($fh)
-    { 
+  {
+   if (open(my $fh,">$ifile"))
+    {
      my $html = HTML::Element->new('html');
      my $head = HTML::Element->new('head');
      my $body = HTML::Element->new('body');
@@ -386,12 +386,12 @@ sub write_index
      $body->push_content("\n",h1('Table of Contents'),$parser->{'index'},"\n");
      print $fh $html->as_HTML;
      $html->delete;
-     $fh->close;
+     close($fh);
     }
   }
 }
 
-sub interior_sequence 
+sub interior_sequence
 {
  die "Should not be called now";
 }
@@ -405,7 +405,7 @@ Pod::HTML_Elements - Convert POD to tree of LWP's HTML::Element and hence HTML o
 
 =head1 SYNOPSIS
 
-  use Pod::HTML_Elements;  
+  use Pod::HTML_Elements;
 
   my $parser = new Pod::HTML_Elements;
   $parser->parse_from_file($pod,'foo.html');
@@ -418,14 +418,14 @@ Pod::HTML_Elements - Convert POD to tree of LWP's HTML::Element and hence HTML o
 B<Pod::HTML_Elements> is subclass of L<B<Pod::Parser>>. As the pod is parsed a tree of
 B<L<HTML::Element>> objects is built to represent HTML for the pod.
 
-At the end of each pod HTML or PostScript representation is written to 
-the output file.   
+At the end of each pod HTML or PostScript representation is written to
+the output file.
 
 =head1 BUGS
 
 Parameter pass-through to L<HTML::FormatPS> needs to be implemented.
 
-=head1 SEE ALSO 
+=head1 SEE ALSO
 
 L<perlpod>, L<Pod::Parser>, L<HTML::Element>, L<HTML::FormatPS>
 
@@ -433,5 +433,5 @@ L<perlpod>, L<Pod::Parser>, L<HTML::Element>, L<HTML::FormatPS>
 
 Nick Ing-Simmons E<lt>nick@ni-s.u-net.comE<gt>
 
-=cut 
+=cut
 

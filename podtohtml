@@ -14,7 +14,7 @@ use Config;
 $SIG{__DIE__} = \&confess;
 
 my %opt = ('s' => '.html','d' => 'html');
-getopts('hqISvd:ps:Di:',\%opt);
+getopts('bhqISvd:ps:Di:',\%opt);
 
 pod2usage( -verbose => ($opt{'v'}) ? 1 : 0, -exitval => 0) if $opt{'h'};
 
@@ -95,8 +95,9 @@ if (@pods)
   foreach my $name ($links->names)
    {
     my $file = $links->pod($name);
-    if (defined $file)
+    if (defined $file || ($opt{'b'} && $name =~ /^\w(?:\w|::)+\w$/))
      {
+      warn "Creating broken links to $name\n" unless $opt{'q'} || defined $file;
       my $outfile = $name;
       $outfile =~ s#::#/#g;
       $outfile =~ s#[^/a-z0-9A-Z._-]##g;
@@ -133,7 +134,7 @@ podtohtml - convert POD documentation to HTML
 
 =head1 SYNOPSIS
 
- podtohtml [-hqvIS] [-i index] [-d outdirectory] [-s sfx] <pods or directories of pods...>
+ podtohtml [-bhqvIS] [-i index] [-d outdirectory] [-s sfx] <pods or directories of pods...>
 
 =head1 DESCRIPTION
 
@@ -151,6 +152,10 @@ The Generated HTML uses relative links.
 The following command line options affect the behaviour:
 
 =over 4
+
+=item -b
+
+Create broken links
 
 =item -d I<outdirectory>
 

@@ -62,9 +62,9 @@ sub verbatim
 sub textblock 
 { 
  my ($parser, $paragraph) = @_;
+ my $expansion = $parser->interpolate($paragraph);
  if ($parser->{'inNAME'})
   {
-   my $expansion = $parser->interpolate($paragraph);
    $parser->{'NAME'} = $expansion;
    $parser->{'inNAME'} = 0;
   }
