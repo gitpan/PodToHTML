@@ -62,6 +62,7 @@ See L</"Bulleted items"> or L<F<testpod>/"Bulleted items">
 
 Text with I<italic>, B<bold>, C<code>, F<Filename>, ZeroZ<>width character, 
 E<lt> E<amp> E<gt>, and strange "E<copy>" charactersE<33>
+I<B<Bold in italic.>> B<C<Code in boldE<33>>>
 
 =head3 Third level Heading
 

@@ -1,3 +1,4 @@
+use 5.004;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
@@ -10,3 +11,14 @@ WriteMakefile(
     'VERSION_FROM' => 'Pod/HTML_Elements.pm',
 );
 
+package MY;
+
+sub const_config
+{
+ my $self = shift;
+ foreach my $name (grep /(%|\.(old|bak|q4))$/,keys %{$self->{PM}})
+  {
+   delete $self->{PM}->{$name};
+  }
+ return $self->SUPER::const_config;
+}

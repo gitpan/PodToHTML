@@ -1,144 +1,47 @@
-    <HTML> 
-	<HEAD> 
-	    <TITLE>testpod - test document for pod formaters.
+<HTML><HEAD><TITLE>testpod - test document for pod formaters.</TITLE></HEAD><BODY><H1>NAME
 
-</TITLE> 
-	</HEAD>
+</H1><P>testpod - test document for pod formaters.
 
-	<BODY>
+<P><HR><H1>SYNOPSIS
 
-<!-- INDEX BEGIN -->
+</H1><PRE>  pod2xxx testpod.pod
 
-<UL>
+</PRE><P><HR><H1>DESCRIPTION
 
-	<LI><A HREF="#NAME">NAME</A>
-	<LI><A HREF="#SYNOPSIS">SYNOPSIS</A>
-	<LI><A HREF="#DESCRIPTION">DESCRIPTION</A>
-	<UL>
+</H1><P>This document is supposed to exercise all pod features.
 
-		<LI><A HREF="#Bulleted_items">Bulleted items</A>
-		<LI><A HREF="#Numbered_items">Numbered items</A>
-		<LI><A HREF="#Text_items">Text items</A>
-		<LI><A HREF="#Links">Links</A>
-		<UL>
+<H2>Bulleted items
 
-			<LI><A HREF="#Third_level_Heading">Third level Heading</A>
-		</UL>
+</H2><DL><DT><STRONG><P>* Bullet
 
-		<LI><A HREF="#That_is_all_for_now_">That is all for now.</A>
-	</UL>
+</STRONG><DL><DT><STRONG><P>* Sub-bullet
 
-</UL>
-<!-- INDEX END -->
+</STRONG><PRE>
+</PRE></DL></DL><H2>Numbered items
 
-<HR>
-<P>
-<H1><A NAME="NAME">NAME
+</H2><PRE>
+</PRE><DL><DT><STRONG><P>1. Level 1
 
-</A></H1>
-testpod - test document for pod formaters.
+</STRONG><DL><DT><STRONG><P>2. Level 2
 
+</STRONG></DL></DL><H2>Text items
 
-<P>
+</H2><PRE>
+</PRE><DL><DT><STRONG><P>An item
 
-<P>
-<HR>
-<H1><A NAME="SYNOPSIS">SYNOPSIS
+</STRONG><DL><DT><STRONG><P>A Sub-item
 
-</A></H1>
-<PRE>  pod2xxx testpod.pod
-</PRE>
+</STRONG></DL></DL><H2>Links
 
-<P>
+</H2><P>See <A>/"Bulleted items"</A> or <A><I>testpod</I>/"Bulleted items"</A>
 
-<P>
-<HR>
-<H1><A NAME="DESCRIPTION">DESCRIPTION
+<P>Text with <I>italic</I>, <B>bold</B>, <CODE>code</CODE>, <I>Filename</I>, Zerowidth character, 
+&lt; &amp; &gt;, and strange "©" characters!
+<I><B>Bold in italic.</B></I> <B><CODE>Code in bold!</CODE></B>
 
-</A></H1>
-This document is supposed to exercise all pod features.
+<H3>Third level Heading
 
+</H3><H3>An item not inside an =over
 
-<P>
-
-<P>
-<HR>
-<H2><A NAME="Bulleted_items">Bulleted items
-
-</A></H2>
-<UL>
-<LI><STRONG><A NAME="item_Bullet">Bullet
-
-</A></STRONG>
-<UL>
-<LI><STRONG><A NAME="item_Sub">Sub-bullet
-
-</A></STRONG>
-</UL>
-</UL>
-<P>
-<HR>
-<H2><A NAME="Numbered_items">Numbered items
-
-</A></H2>
-<OL>
-<LI><STRONG><A NAME="item_Level_1"> Level 1
-
-</A></STRONG>
-<OL>
-<LI><STRONG><A NAME="item_Level_2"> Level 2
-
-</A></STRONG>
-</OL>
-</OL>
-<P>
-<HR>
-<H2><A NAME="Text_items">Text items
-
-</A></H2>
-<DL>
-<DT><STRONG><A NAME="item_An">An item
-
-</A></STRONG><DD>
-<DL>
-<DT><STRONG><A NAME="item_A">A Sub-item
-
-</A></STRONG><DD>
-</DL>
-</DL>
-<P>
-<HR>
-<H2><A NAME="Links">Links
-
-</A></H2>
-See <A HREF="#Bulleted_items">Bulleted items</A> or <EM><EM>testpod</EM></EM>
-
-
-
-
-<P>
-
-Text with <EM>italic</EM>, <STRONG>bold</STRONG>, <CODE>code</CODE>, <EM>Filename</EM>, Zerowidth character, 
-&lt;  &amp;  &gt;, and strange ``&copy;'' characters&33;
-
-
-
-
-<P>
-
-<P>
-<HR>
-<H3><A NAME="Third_level_Heading">Third level Heading
-
-</A></H3>
-<DL>
-<DT><STRONG>An item not inside an =over
-
-</A></STRONG><DD>
-<H2><A NAME="That_is_all_for_now_">That is all for now.
-</A></H2>
-</DL>
-</DL>
-    </BODY>
-
-    </HTML>
+</H3><H2>That is all for now.
+</H2><P><HR></BODY></HTML>

@@ -14,6 +14,7 @@ sub link_parse
  my ($section,$remote,$category);
  my $text = $link;
  $text = $1 if $link =~ s/^([^|]+)\|(?=.)//;
+ return ($text,$link) if $link =~ m#[a-zA-Z]+://#;
  $link =~ s/\s+/ /g;
  $sec = {} unless defined $sec;
  if ((exists($sec->{$link}) && $link =~ /^(.*)$/) ||

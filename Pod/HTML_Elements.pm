@@ -1,90 +1,14 @@
 package Pod::HTML_Elements;
 use strict;
-use Pod::Parser;       
+use Pod::Parser 1.061;       
 use Pod::Links qw(link_parse);
-use Pod::InputObjects;
 use HTML::Element;
 use HTML::Entities;
 use HTML::AsSubs qw(h1 a li title);
 use vars qw(@ISA $VERSION);
-$VERSION = '0.03';
+$VERSION = '0.04';
 use base qw(Pod::Parser);  
 use Data::Dumper;     
-
-sub interpolate_list {
-    my $self = shift;
-    my($text, $end_re, $need_array) = @_;
-    ## Set defaults for unspecified arguments
-    $text   = ''   unless (defined $text);
-    $end_re = '$'  unless ((defined $end_re) && (length $end_re));
-    $need_array = wantarray  unless (defined $need_array);
-    local $_;
-    my @result = ();
-    my $item = '';
-    ## Keep track of a stack of sequences currently "in progress"
-    my $seq_stack = $self->{_SEQUENCE_CMDS};
-    my ($seq_cmd, $seq_arg, $end) = ('', '', undef);
-    my $pod_sequence = undef;
-    ## Parse all sequences until end-of-string or we match the end-regex
-    while ((length $text)  &&  ($text =~ /^(.*?)(([A-Z])<|($end_re))/s)) {
-        ## Append text before the match to the result
-        push(@result, $item = $1);
-        ## See if we matched an interior sequence or an end-expression
-        ($seq_cmd, $end) = ($3, $4);
-        ## Only text after the match remains to be processed
-        $text = substr($text, length($1) + length($2));
-        ## Was this the end of the sequence
-        if (! defined $seq_cmd) {
-            last  if ($end_re eq '$');
-            (! defined $end)  and  $end = "";
-            ## If the sequence stack is empty, this cant be the end because
-            ## we havent yet seen a proper beginning. Keep looking.
-            next if ((@{$seq_stack} == 0) && ($item .= $end));
-           
-            ## The following is a *hack* to allow '->' and '=>' inside of
-            ## C<...> sequences (but not '==>' or '-->')
-            if (($end eq '>') && (@{$seq_stack} > 0)) {
-                my $top_cmd = $seq_stack->[-1]->cmd_name();
-                ## Exit the loop if this was the end of the sequence.
-                last unless (($top_cmd eq 'C') && ($item =~ /[^-=][-=]$/));
-                ## This was a "false-end" that was really '->' or '=>'
-                ## so we need to keep looking.
-                $result[-1] .= $end  and  next;
-            }
-        }
-        ## At this point we have found an interior sequence,
-        ## we need to obtain its argument
-        $pod_sequence = new Pod::InteriorSequence(
-                           -name => $seq_cmd,
-                        );
-        push(@{$seq_stack}, $pod_sequence);
-
-        if ($need_array)
-         {
-          $seq_arg = $pod_sequence->list($self->interpolate_list($text, '>', 1));
-         }
-        else
-         {
-          $pod_sequence->text($seq_arg = $self->interpolate_list($text, '>', 0));
-         }
-
-        ## Now process the interior sequence
-        push(@result, $self->interior_sequence($seq_cmd, $seq_arg,
-                                               $pod_sequence));
-        pop(@{$seq_stack});
-    }
-    ## Handle whatever is left if we didnt match the ending regexp
-    unless ((defined $end) && ($end_re ne '$')) {
-        push(@result, $text);
-        $result[-1] .= "\n"  if (($end_re eq '$') && (chop($text) ne "\n"));
-        $text = '';
-    }
-    ## Modify the input parameter to consume the text that was
-    ## processed so far.
-    $_[0] = $text;
-    ## Return the processed-text
-    return  ($need_array) ? @result : join('', @result);
-}
 
 my $nbsp;              
 
@@ -110,10 +34,7 @@ sub begin_pod
 sub current 
 { 
  my $obj = shift;
- if (@_)
-  {      
-   $obj->{'current'} = shift;
-  }
+ $obj->{'current'} = shift if (@_);
  return $obj->{'current'}; 
 }          
 
@@ -164,18 +85,25 @@ sub do_name
 
 sub verbatim 
 {
- my ($parser, $paragraph) = @_;    
- if ($parser->{'in_name'})
-  {
-   $parser->do_name($paragraph);
-  }
+ my ($parser, $paragraph, $line_num) = @_;    
+ $parser->do_name($paragraph) if ($parser->{'in_name'});
  $parser->add_elem(pre => $paragraph);
 }          
 
+sub raw_text
+{
+ my $text = '';
+ foreach (@{$_[0]})
+  {
+   $text .= (ref $_) ? raw_text($_->content) : $_;
+  }
+ return $text;
+}                                 
+
 sub textblock 
 {
- my ($parser, $paragraph) = @_;
- my @expansion = $parser->interpolate_list($paragraph);
+ my ($parser, $paragraph, $line_num) = @_;
+ my @expansion = $parser->parse_to_elem($paragraph, $line_num);
  if ($parser->{'in_name'})
   {
    my $t = raw_text(\@expansion);
@@ -201,49 +129,14 @@ sub linktext
  return undef;
 }
 
-my %seq = (B => 'b', I => 'i', C => 'code', 'F' => 'i', 'L' => 'a');
-
-sub interior_sequence 
-{
- my ($parser, $seq_command, $seq_argument, $seq) = @_;
- my $t = $seq{$seq_command};
- if ($t)
-  {  
-   my @args = $seq->list;
-   if ($seq_command eq 'L')
-    {
-     my $txt = raw_text($seq_argument);
-     my ($text,@where) = link_parse($txt);
-     @args = ($text) if ($text ne $txt);
-     my $link = $parser->linktext(@where); 
-     unshift(@args, { href => $link } ) if defined $link;
-    }
-   return make_elem($t,@args);
-  }
- if ($seq_command eq 'E')
-  {                                
-   # Assume only one simple string in the argument ...
-   my $s = $seq_argument->[0];
-   return chr($s) if $s =~ /^\d+$/;
-   return decode_entities("&$s;"); 
-  }
- return '' if ($seq_command eq 'Z');
- if ($seq_command eq 'S')
-  {                    
-   $nbsp = decode_entities('&nbsp;') unless defined $nbsp;
-   non_break($seq_argument);
-   return $seq->list;
-  }
- return ("$seq_command<",$seq->list,'>');
-}
-
 sub non_break
-{            
- foreach (@{$_[0]})
+{             
+ my $tree = shift;
+ foreach ($tree->children)
   {
    if (ref $_)
     {
-     non_break($_->content);
+     non_break($_->parse_tree);
     }
    else
     {
@@ -252,20 +145,74 @@ sub non_break
   }
 }
 
-sub raw_text
+my %seq = (B => 'b', I => 'i', C => 'code', 'F' => 'i', 'L' => 'a');
+sub seq_to_element
 {
- my $text = '';
- foreach (@{$_[0]})
-  {
-   $text .= (ref $_) ? raw_text($_->content) : $_;
+ my ($parser, $cmd, $tree) = @_;
+ my $t = $seq{$cmd};
+ if ($t)
+  {     
+   my @args = walk_tree($parser,$tree);
+   if ($cmd eq 'L')
+    {
+     my $txt = raw_text(\@args);
+     my ($text,@where) = link_parse($txt);
+     @args = ($text) if ($text ne $txt);
+     my $link = @where == 1 ? $where[0] : $parser->linktext(@where); 
+     unshift(@args, { href => $link } ) if defined $link;
+    }
+   return make_elem($t,@args);
   }
- return $text;
-}                                 
+ if ($cmd eq 'E')
+  {        
+   # Assume only one simple string in the argument ...
+   my @args = walk_tree($parser,$tree);
+   my $s = raw_text(\@args);
+   return chr($s) if $s =~ /^\d+$/;
+   return decode_entities("&$s;"); 
+  }
+ return '' if ($cmd eq 'Z');
+ if ($cmd eq 'S')
+  {                    
+   $nbsp = decode_entities('&nbsp;') unless defined $nbsp;
+   non_break($tree);
+   return walk_tree($parser,$tree);
+  }
+ return ("$cmd<",walk_tree($parser,$tree),'>');
+}
+
+sub walk_tree
+{
+ my ($parser,$tree) = @_;
+ my @list = ();
+ foreach my $seq ($tree->children)
+  {
+   if (ref($seq))
+    {
+     my $cmd  = $seq->cmd_name;
+     my $tree = $seq->parse_tree;
+     push(@list,seq_to_element($parser,$cmd,$tree));
+    }
+   else
+    {
+     push(@list,$seq);
+    }
+  }
+ return @list;
+}
+
+sub parse_to_elem 
+{
+ my ($self,$text,$line_num) = @_;
+ my $tree = $self->parse_text($text, $line_num);
+ return walk_tree($self,$tree);
+}
+
 
 sub command 
 {      
- my ($parser, $command, $paragraph) = @_;
- my @expansion = $parser->interpolate_list($paragraph);
+ my ($parser, $command, $paragraph, $line_num) = @_;
+ my @expansion = $parser->parse_to_elem($paragraph, $line_num);
  if ($command =~ /^head(\d+)?$/)
   {                   
    my $rank = $1 || 3;
@@ -280,6 +227,15 @@ sub command
    if ($name)
     {
      @expansion = make_elem('a',{ name => substr($name,1) } , @expansion ) if (defined $name);
+    }
+   if ($rank == 1)
+    {
+     if ($parser->{'last_head1'} && $parser->{'last_head1'} eq $parser->input_file)
+      {
+       $parser->add_elem("p");
+       $parser->add_elem("hr");
+      }
+     $parser->{'last_head1'} = $parser->input_file;
     }
    $parser->add_elem("h$rank" => @expansion);
   }
@@ -376,6 +332,14 @@ sub command
 sub end_pod
 {
  my $parser = shift;
+
+ $parser->add_elem("p");
+ $parser->add_elem("hr");                                      
+ unless ($parser->{'NoDate'})
+  {
+   $parser->add_elem("i", make_elem( font => { size => "-1" } , 
+                                     "Last updated: ",scalar localtime));
+  }
  my $html = $parser->html;
  if ($html)
   {
@@ -427,6 +391,10 @@ sub write_index
   }
 }
 
+sub interior_sequence 
+{
+ die "Should not be called now";
+}
 
 1;
 __END__

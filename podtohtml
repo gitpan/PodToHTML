@@ -13,11 +13,17 @@ use Cwd;
 use Config;
 $SIG{__DIE__} = \&confess;
 
-my %opt = ('s' => '.html');
+my %opt = ('s' => '.html','d' => 'html');
 getopts('hqISvd:ps:Di:',\%opt);
-my $here = getcwd();
 
 pod2usage( -verbose => ($opt{'v'}) ? 1 : 0, -exitval => 0) if $opt{'h'};
+
+my $here = getcwd();              
+mkpath($opt{'d'},1,0777) unless -d $opt{'d'};
+chdir($opt{'d'}) || die "Cannot cd to $opt{'d'}:$!";
+$opt{'d'} = getcwd();
+chdir($here) || die "Cannot cd back to $here:$!";
+
 
 my @pods; 
 
