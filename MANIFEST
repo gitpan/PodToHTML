@@ -1,0 +1,13 @@
+MANIFEST
+MANIFEST.SKIP
+Makefile.PL
+Pod/Find.pm
+Pod/HTML_Elements.pm
+Pod/Links.pm
+README
+findpods
+podtohtml
+t/postscript.t
+t/script.t
+t/testpod.htm
+t/testpod.pod

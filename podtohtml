@@ -1,0 +1,230 @@
+#!/usr/local/bin/new/perl -w
+use 5.004;
+use strict;
+use Pod::Find;
+use Pod::Links;
+use Pod::Usage;
+use Pod::HTML_Elements;
+use Getopt::Std;
+use File::Basename;
+use File::Path;
+use Carp;
+use Cwd;
+use Config;
+$SIG{__DIE__} = \&confess;
+
+my %opt = ('s' => '.html');
+getopts('hqISvd:ps:Di:',\%opt);
+my $here = getcwd();
+
+pod2usage( -verbose => ($opt{'v'}) ? 1 : 0, -exitval => 0) if $opt{'h'};
+
+my @pods; 
+
+sub add_dir
+{
+ my $dir = shift;
+ if (chdir($dir))
+  {
+   push(@pods,find_pods(getcwd()));
+   chdir($here) || die "Cannot cd back to $here:$!";
+  }
+ else
+  {
+   warn "Cannot cd to $dir:$!";
+  }
+}
+
+if (@ARGV)
+ {
+  foreach my $dir (@ARGV)
+   {
+    if (-d $dir)
+     {
+      add_dir($dir);
+     }
+    elsif (-f $dir && contains_pod($dir))
+     {
+      push(@pods,$dir);
+     }
+   }
+ }
+
+add_dir($Config{'scriptdirexp'}) if ($opt{'S'});
+
+if ($opt{'I'})
+ {        
+  foreach my $dir (@INC)
+   {
+    add_dir($dir);
+   }
+ }
+
+require Data::Dumper if $opt{'D'};
+
+my @args = ();
+my $sfx  = $opt{'s'};
+if ($opt{'p'})
+ {
+  push(@args,PostScript => 1);
+  $sfx = '.ps';
+ }
+
+if ($opt{'D'})
+ {
+  push(@args,Dump => 1);
+  $sfx = '.dmp';
+ }
+
+push(@args,Index => $opt{'i'}) if (defined $opt{'i'});
+
+if (@pods)
+ {
+  warn "Pre-Scan for links\n" unless $opt{'q'};
+  my $links = new Pod::Links Verbose => $opt{'v'};
+  foreach my $pod (@pods)
+   {
+    $links->parse_from_file($pod);
+   }
+  foreach my $name ($links->names)
+   {
+    my $file = $links->pod($name);
+    if (defined $file)
+     {
+      my $outfile = $name;
+      $outfile =~ s#::#/#g;
+      $outfile =~ s#[^/a-z0-9A-Z._-]##g;
+      $outfile .= $sfx;
+      $outfile = $opt{'d'}."/$outfile" if defined $opt{'d'};
+      $links->link($name,$outfile);
+      print "$name => $outfile\n" if $opt{'v'};
+     }
+   }
+  my $parser = new Pod::HTML_Elements @args, Links => $links;
+  warn "Generating Output\n" unless $opt{'q'};
+  foreach my $name ($links->names)
+   {
+    my $file = $links->pod($name);
+    my $outfile = $links->link($name);
+    if (defined $file)
+     {
+      print "$file => $outfile\n" if $opt{'v'};
+      mkpath(File::Basename::dirname($outfile),1,0777);
+      $parser->parse_from_file($file,$outfile);
+     }
+   }
+  $parser->write_index;
+ }
+else
+ {
+ }
+
+__END__
+
+=head1 NAME
+
+podtohtml - convert POD documentation to HTML
+
+=head1 SYNOPSIS
+
+ podtohtml [-hqvIS] [-i index] [-d outdirectory] [-s sfx] <pods or directories of pods...>
+
+=head1 DESCRIPTION
+
+C<podtohtml> converts POD documentation to HTML. It is based on 
+the generic L<Pod::Parser>. It works by making two passes over the 
+selected pods, the fisrt pass uses L<Pod::Links> to pre-scan for 
+LE<lt>E<gt> links and C<=head1 NAME> sections, and then a second to build a tree
+of L<HTML::Element>s for each POD and calling the C<as_HTML> method on 
+the resulting tree.
+
+The Generated HTML uses relative links.
+                                                        
+=head1 OPTIONS
+
+The following command line options affect the behaviour:
+
+=over 4
+
+=item -d I<outdirectory>
+
+The directory into which the HTML is written.
+
+=item -q 
+
+Run as quietly as possible
+
+=item -v
+
+Verbose - print messages about files being processed.
+
+=item -s I<suffix>
+
+Set the suffix for generated files. Default is '.html' for HTML files
+and '.ps' for PostScript files.
+
+=item -i I<index>
+
+Build an index file in I<index>.
+
+=item -I
+
+Search perl's C<@INC> for pods. Heuristics implemented in L<Pod::Find>
+attempt to restrict search to files related to the version of perl
+executing the script.
+
+=item -S
+
+Search directory that is specified in C<Config> as install location 
+of scripts for pods.
+
+=item -p
+
+Generate PostScript rather than HTML. This is done using L<HTML::FormatPS>
+and font sizes etc. are not yet specifiable.
+
+=item -D 
+
+Print L<Data::Dumper> dump of generated tree rather than generating HTML
+(for debugging).
+
+=back 
+
+=head1 EXAMPLES
+
+=head2 Build HTML for all installed modules and associated scripts :
+
+   podtohtml -I -S -d "/home/WWW/perl" -i "/home/WWW/perl/index.html"
+
+That takes rather a long time (22 minutes on my 60MHz SPARCStation10). 
+
+=head2 Build HTML for unistalled Tk extension:
+
+   podtohtml -d "/home/WWW/Tk8" -i /home/WWW/TkIndex.html ~/Tk8/pod 
+
+=head1 BUGS
+
+=over 4
+
+=item * Active links are only built for pods processed in the same invocation.
+
+=item * Large documents are not split.
+
+=item * L<HTML::FormatPS>'s style does not suit Nick's taste.
+
+=item * The index file needs more structure.
+
+=head1 SEE ALSO 
+
+L<Pod::Parser>
+L<Pod::Links>
+L<Pod::HTML_Elements>
+L<HTML::Element>
+L<HTML::FormatPS>
+
+=head1 AUTHOR
+
+Nick Ing-Simmons <nick@ni-s.u-net.com>
+
+=cut
+ 

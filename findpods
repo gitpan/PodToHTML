@@ -1,0 +1,72 @@
+#!/usr/local/bin/new/perl -w
+use strict;
+use Config;
+use Carp;
+use Pod::Links;
+use Pod::Find;
+
+$SIG{'INT'} = \&Carp::confess;
+
+use Cwd;            
+use Getopt::Std;  
+my %opt;
+getopts('icdsv',\%opt);
+my $here = getcwd();
+
+my @dir;   
+
+sub add_dir
+{
+ my $dir = shift;
+ if (chdir($dir))
+  {
+   push(@dir,getcwd());
+   chdir($here) || die "Cannot cd back to $here:$!";
+  }
+ else
+  {
+   warn "Cannot cd to $dir:$!";
+  }
+}
+
+if (@ARGV)
+ {
+  foreach my $dir(@ARGV)
+   {
+    add_dir($dir);
+   }
+ }
+else
+ {
+  push(@dir,$here);
+ }
+
+add_dir($Config{'scriptdirexp'}) if ($opt{'s'});
+
+if ($opt{'i'})
+ {        
+  foreach my $dir (@INC)
+   {
+    add_dir($dir);
+   }
+ }
+
+my @pods = find_pods(@dir);
+
+warn scalar(@pods)." pods found\n";
+
+my $links = new Pod::Links Verbose => $opt{'v'};
+foreach my $file (@pods)
+ {        
+  $links->parse_from_file($file);  
+ }
+$links->check_links() if $opt{'c'};
+
+if ($opt{'d'})
+ {
+  require Data::Dumper; 
+  my $d = Data::Dumper->new([$links],['$links']);
+  print $d->Dumpxs;
+ }
+
+

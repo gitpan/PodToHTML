@@ -1,0 +1,8 @@
+%$
+\.tar\b
+\.(bak|old|ps|html|q4|dmp)$
+\b(Makefile|pm_to_blib|perl)$
+\bblib\b
+\bpod2ps\b
+t/testpod.ps
+\bhtml\b
