@@ -1,13 +1,18 @@
+Changes
+findpods
+LICENSE
+Makefile.PL
 MANIFEST
 MANIFEST.SKIP
-Makefile.PL
-Pod/Find.pm
-Pod/HTML_Elements.pm
-Pod/Links.pm
-README
-findpods
+lib/Pod/HTML_Elements.pm
+lib/Pod/Links.pm
 podtohtml
+README
+t/pod.t
+t/pod_coverage.t
 t/postscript.t
 t/script.t
 t/testpod.htm
 t/testpod.pod
+examples/placeholder.pl
+META.yml                                 Module meta-data (added by MakeMaker)

@@ -274,3 +274,39 @@ sub check_links
 
 1; 
 __END__
+
+=head1 NAME
+
+Pod::Links - Pod::Parser subclass to deal with LE<lt>E<gt> links
+
+=head1 SYNOPSIS
+
+
+=head1 DESCRIPTION
+
+-----------------------------------------------------------------------------
+
+THIS IS A DEPRECATED MODULE
+
+If you aren't already using this module, don't start.
+
+------------------------------------------------------------------------------
+
+B<Pod::HTML_Elements> is subclass of B<Pod::Parser>. As the pod is parsed a tree of
+B<L<HTML::Element>> objects is built to represent HTML for the pod.
+
+At the end of each pod HTML or PostScript representation is written to
+the output file.
+
+=head1 SEE ALSO
+
+L<perlpod>, L<Pod::Parser>, L<HTML::Element>, L<HTML::FormatPS>
+
+=head1 AUTHOR
+
+Nick Ing-Simmons
+
+maintained by brian d foy C<< <bdfoy@cpan.org> >>.
+
+=cut
+

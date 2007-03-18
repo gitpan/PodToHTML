@@ -1,0 +1,9 @@
+THIS IS A DEPRECATED MODULE
+
+0.06 - Sun Mar 18 09:09:48 2007
+	* Updated dist to get rid of internal Pod::Find that conflicts
+	with the one from Pod::Parser
+	* THIS IS A DEPRECATED MODULE. DON'T USE IT ANYMORE!
+	* now maintained by brian d foy, who won't develop it further
+
+If you aren't already using this module, don't start.

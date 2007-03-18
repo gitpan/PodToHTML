@@ -66,6 +66,4 @@ I<B<Bold in italic.>> B<C<Code in boldE<33>>>
 
 =head3 Third level Heading
 
-=item An item not inside an =over
-
 =head2 That is all for now.

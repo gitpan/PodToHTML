@@ -1,0 +1,18 @@
+--- #YAML:1.0
+name:                PodToHTML
+version:             0.06
+abstract:            ~
+license:             perl
+generated_by:        ExtUtils::MakeMaker version 6.31
+distribution_type:   module
+requires:     
+    HTML::AsSubs:                  0
+    HTML::Element:                 0
+    HTML::Entities:                0
+    HTML::FormatPS:                0
+    Pod::Parser:                   0
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
+    version: 1.2
+author:
+    - Nick Ing-Simmons (maintained by brian d foy <bdfoy@cpan.org>)

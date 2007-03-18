@@ -1,3 +1,8 @@
+-----------------------------------------------------------------------------
+THIS IS A DEPRECATED MODULE
+
+If you aren't already using this module, don't start.
+------------------------------------------------------------------------------
 Copyright (c) 1997-1999 Nick Ing-Simmons. All rights reserved.
 This package is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

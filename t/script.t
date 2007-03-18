@@ -6,3 +6,6 @@ my $code = system($^X,"-Mblib","podtohtml",'-q',
              '-d' => "t/html",-i => "t/html/index.html",
              "podtohtml","Pod");
 ok($code,0,"Error from script");
+
+unlink glob( "t/html/*.html" );
+rmdir "t/html";

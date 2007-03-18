@@ -6,7 +6,7 @@ use HTML::Element;
 use HTML::Entities;
 use HTML::AsSubs qw(h1 a li title);
 use vars qw(@ISA $VERSION);
-$VERSION = '0.05';
+$VERSION = '0.06';
 use base qw(Pod::Parser);
 use Data::Dumper;
 
@@ -415,7 +415,15 @@ Pod::HTML_Elements - Convert POD to tree of LWP's HTML::Element and hence HTML o
 
 =head1 DESCRIPTION
 
-B<Pod::HTML_Elements> is subclass of L<B<Pod::Parser>>. As the pod is parsed a tree of
+-----------------------------------------------------------------------------
+
+THIS IS A DEPRECATED MODULE
+
+If you aren't already using this module, don't start.
+
+------------------------------------------------------------------------------
+
+B<Pod::HTML_Elements> is subclass of B<Pod::Parser>. As the pod is parsed a tree of
 B<L<HTML::Element>> objects is built to represent HTML for the pod.
 
 At the end of each pod HTML or PostScript representation is written to
@@ -431,7 +439,11 @@ L<perlpod>, L<Pod::Parser>, L<HTML::Element>, L<HTML::FormatPS>
 
 =head1 AUTHOR
 
-Nick Ing-Simmons E<lt>nick@ni-s.u-net.comE<gt>
+=head1 AUTHOR
+
+Nick Ing-Simmons
+
+maintained by brian d foy C<< <bdfoy@cpan.org> >>.
 
 =cut
 

@@ -1,7 +1,7 @@
 #!/usr/local/bin/new/perl -w
 use 5.004;
 use strict;
-use Pod::Find;
+use Pod::Find qw(pod_find);
 use Pod::Links;
 use Pod::Usage;
 use Pod::HTML_Elements;
@@ -18,21 +18,23 @@ getopts('bhqISvd:ps:Di:',\%opt);
 
 pod2usage( -verbose => ($opt{'v'}) ? 1 : 0, -exitval => 0) if $opt{'h'};
 
-my $here = getcwd();              
+my $here = getcwd();
 mkpath($opt{'d'},1,0777) unless -d $opt{'d'};
 chdir($opt{'d'}) || die "Cannot cd to $opt{'d'}:$!";
 $opt{'d'} = getcwd();
 chdir($here) || die "Cannot cd back to $here:$!";
 
 
-my @pods; 
+my @pods;
 
 sub add_dir
 {
  my $dir = shift;
  if (chdir($dir))
   {
-   push(@pods,find_pods(getcwd()));
+  my %pods = pod_find( {}, getcwd());
+
+   push @pods, keys %{ { pod_find( {}, getcwd())}  };
    chdir($here) || die "Cannot cd back to $here:$!";
   }
  else
@@ -49,7 +51,7 @@ if (@ARGV)
      {
       add_dir($dir);
      }
-    elsif (-f $dir && contains_pod($dir))
+    elsif (-f $dir && contains_pod($dir)) # XXX
      {
       push(@pods,$dir);
      }
@@ -59,7 +61,7 @@ if (@ARGV)
 add_dir($Config{'scriptdirexp'}) if ($opt{'S'});
 
 if ($opt{'I'})
- {        
+ {
   foreach my $dir (@INC)
    {
     add_dir($dir);
@@ -126,6 +128,31 @@ else
  {
  }
 
+
+sub contains_pod
+{
+ my $file = shift;
+ local $/ = '';
+ my $pod = 0;
+ if (open(POD,"<$file"))
+  {
+   local $_;
+   while (<POD>)
+    {
+     if ($pod = /^=head\d\s/)
+      {
+       last;
+      }
+    }
+   close(POD);
+  }
+ else
+  {
+   warn "Cannot open $file:$!\n";
+  }
+ return $pod;
+}
+
 __END__
 
 =head1 NAME
@@ -138,15 +165,15 @@ podtohtml - convert POD documentation to HTML
 
 =head1 DESCRIPTION
 
-C<podtohtml> converts POD documentation to HTML. It is based on 
-the generic L<Pod::Parser>. It works by making two passes over the 
-selected pods, the fisrt pass uses L<Pod::Links> to pre-scan for 
+C<podtohtml> converts POD documentation to HTML. It is based on
+the generic L<Pod::Parser>. It works by making two passes over the
+selected pods, the fisrt pass uses L<Pod::Links> to pre-scan for
 LE<lt>E<gt> links and C<=head1 NAME> sections, and then a second to build a tree
-of L<HTML::Element>s for each POD and calling the C<as_HTML> method on 
+of L<HTML::Element>s for each POD and calling the C<as_HTML> method on
 the resulting tree.
 
 The Generated HTML uses relative links.
-                                                        
+
 =head1 OPTIONS
 
 The following command line options affect the behaviour:
@@ -161,7 +188,7 @@ Create broken links
 
 The directory into which the HTML is written.
 
-=item -q 
+=item -q
 
 Run as quietly as possible
 
@@ -186,7 +213,7 @@ executing the script.
 
 =item -S
 
-Search directory that is specified in C<Config> as install location 
+Search directory that is specified in C<Config> as install location
 of scripts for pods.
 
 =item -p
@@ -194,12 +221,12 @@ of scripts for pods.
 Generate PostScript rather than HTML. This is done using L<HTML::FormatPS>
 and font sizes etc. are not yet specifiable.
 
-=item -D 
+=item -D
 
 Print L<Data::Dumper> dump of generated tree rather than generating HTML
 (for debugging).
 
-=back 
+=back
 
 =head1 EXAMPLES
 
@@ -207,11 +234,11 @@ Print L<Data::Dumper> dump of generated tree rather than generating HTML
 
    podtohtml -I -S -d "/home/WWW/perl" -i "/home/WWW/perl/index.html"
 
-That takes rather a long time (22 minutes on my 60MHz SPARCStation10). 
+That takes rather a long time (22 minutes on my 60MHz SPARCStation10).
 
 =head2 Build HTML for unistalled Tk extension:
 
-   podtohtml -d "/home/WWW/Tk8" -i /home/WWW/TkIndex.html ~/Tk8/pod 
+   podtohtml -d "/home/WWW/Tk8" -i /home/WWW/TkIndex.html ~/Tk8/pod
 
 =head1 BUGS
 
@@ -225,7 +252,9 @@ That takes rather a long time (22 minutes on my 60MHz SPARCStation10).
 
 =item * The index file needs more structure.
 
-=head1 SEE ALSO 
+=back
+
+=head1 SEE ALSO
 
 L<Pod::Parser>
 L<Pod::Links>
@@ -238,4 +267,4 @@ L<HTML::FormatPS>
 Nick Ing-Simmons <nick@ni-s.u-net.com>
 
 =cut
- 
+
