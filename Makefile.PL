@@ -10,12 +10,12 @@ If you aren't already using this module, don't start.
 HERE
 
 WriteMakefile(
-    'NAME'     => 'PodToHTML',
-    'EXE_FILES' => [qw(podtohtml)],
-    'clean' => {FILES => "*% *.bak *.old Pod/*% t/html/*"},
-    'linkext' => { LINKTYPE => ''},
-    'dist'     => { COMPRESS => 'gzip -f9', SUFFIX => '.gz' },
-    'VERSION_FROM' => 'lib/Pod/HTML_Elements.pm',
+    'NAME'         => 'PodToHTML',
+    'EXE_FILES'    => [qw(podtohtml)],
+    'clean'        => {FILES => "*% *.bak *.old Pod/*% t/html/*"},
+    'linkext'      => { LINKTYPE => ''},
+    'dist'         => { COMPRESS => 'gzip -f9', SUFFIX => '.gz' },
+    'VERSION'      => '0.07',
  	'AUTHOR'       => 'Nick Ing-Simmons (maintained by brian d foy <bdfoy@cpan.org>)',
  	'LICENSE'      => 'perl',
  
@@ -25,6 +25,7 @@ WriteMakefile(
                    HTML::Entities => 0,
                    HTML::AsSubs   => 0,
                    Pod::Parser    => 0,
+                   URI::URL       => 0,
                   },
 );
 
