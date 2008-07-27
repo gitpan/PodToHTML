@@ -6,7 +6,7 @@ use HTML::Element;
 use HTML::Entities;
 use HTML::AsSubs qw(h1 a li title);
 use vars qw(@ISA $VERSION);
-$VERSION = '0.06';
+$VERSION = '0.08';
 use base qw(Pod::Parser);
 use Data::Dumper;
 

@@ -157,13 +157,17 @@ __END__
 
 =head1 NAME
 
-podtohtml - convert POD documentation to HTML
+podtohtml - (DEPRECATED) convert POD documentation to HTML
 
 =head1 SYNOPSIS
 
- podtohtml [-bhqvIS] [-i index] [-d outdirectory] [-s sfx] <pods or directories of pods...>
+	THIS IS A DEPRECATED PROGRAM. See Pod::Simple::HTML instead.
+	
+	podtohtml [-bhqvIS] [-i index] [-d outdirectory] [-s sfx] <pods or directories of pods...>
 
 =head1 DESCRIPTION
+
+THIS IS A DEPRECATED PROGRAM.
 
 C<podtohtml> converts POD documentation to HTML. It is based on
 the generic L<Pod::Parser>. It works by making two passes over the
@@ -242,6 +246,8 @@ That takes rather a long time (22 minutes on my 60MHz SPARCStation10).
 
 =head1 BUGS
 
+THIS IS A DEPRECATED PROGRAM. THESE BUGS WILL NOT BE FIXED.
+
 =over 4
 
 =item * Active links are only built for pods processed in the same invocation.
@@ -256,11 +262,7 @@ That takes rather a long time (22 minutes on my 60MHz SPARCStation10).
 
 =head1 SEE ALSO
 
-L<Pod::Parser>
-L<Pod::Links>
-L<Pod::HTML_Elements>
-L<HTML::Element>
-L<HTML::FormatPS>
+L<Pod::Simple::HTML>
 
 =head1 AUTHOR
 

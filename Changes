@@ -1,9 +1,10 @@
 THIS IS A DEPRECATED MODULE
 
-0.07 - Mon Oct 22 14:57:34 CDT 2007
-	* Adding missing URI::URL prereq.
-	* THIS IS A DEPRECATED MODULE. DON'T USE IT ANYMORE!
-	
+0.08 - Sun Jul 27 16:54:42 2008
+	* Put deprecation warnings in more places in the docs, and in
+	the podtohtml script
+	* Use Pod::Simple::HTML instead of this module
+
 0.06 - Sun Mar 18 09:09:48 2007
 	* Updated dist to get rid of internal Pod::Find that conflicts
 	with the one from Pod::Parser
