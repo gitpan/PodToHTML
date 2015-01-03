@@ -4,7 +4,7 @@ use File::Basename;
 use Carp;            
 use Pod::Parser;
 use vars qw(@ISA $VERSION @EXPORT_OK);
-$VERSION = '1.00';
+$VERSION = '1.01';
 use base qw(Exporter Pod::Parser);
 @EXPORT_OK = qw(link_parse);
 
